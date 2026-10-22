@@ -24,7 +24,9 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
@@ -46,13 +48,13 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p sf-cache
-          curl -fL -o sf-cache/arm64.tar  https://github.com/official-stockfish/Stockfish/releases/download/${{ env.SF18_TAG }}/stockfish-android-armv8.tar
-          curl -fL -o sf-cache/armv7.tar  https://github.com/official-stockfish/Stockfish/releases/download/${{ env.SF18_TAG }}/stockfish-android-armv7-neon.tar
+          curl -fL -o sf-cache/arm64.tar https://github.com/official-stockfish/Stockfish/releases/download/${{ env.SF18_TAG }}/stockfish-android-armv8.tar
+          curl -fL -o sf-cache/armv7.tar https://github.com/official-stockfish/Stockfish/releases/download/${{ env.SF18_TAG }}/stockfish-android-armv7-neon.tar
           cd sf-cache
           tar xf arm64.tar
           tar xf armv7.tar
-          mv stockfish/stockfish-android-armv8       libstockfish-arm64.so
-          mv stockfish/stockfish-android-armv7-neon  libstockfish-armv7.so
+          mv stockfish/stockfish-android-armv8 libstockfish-arm64.so
+          mv stockfish/stockfish-android-armv7-neon libstockfish-armv7.so
           rm -rf stockfish arm64.tar armv7.tar
           ls -la
 
@@ -66,8 +68,8 @@ jobs:
       - name: Install Stockfish 18 into jniLibs
         run: |
           mkdir -p app/src/main/jniLibs/arm64-v8a app/src/main/jniLibs/armeabi-v7a
-          cp sf-cache/libstockfish-arm64.so  app/src/main/jniLibs/arm64-v8a/libstockfish.so
-          cp sf-cache/libstockfish-armv7.so  app/src/main/jniLibs/armeabi-v7a/libstockfish.so
+          cp sf-cache/libstockfish-arm64.so app/src/main/jniLibs/arm64-v8a/libstockfish.so
+          cp sf-cache/libstockfish-armv7.so app/src/main/jniLibs/armeabi-v7a/libstockfish.so
           ls -la app/src/main/jniLibs/*/
 
       - name: Build debug APK splits
@@ -88,4 +90,4 @@ jobs:
         with:
           name: opencheps-armeabi-v7a-debug
           path: app/build/outputs/apk/debug/*armeabi-v7a*.apk
-          if-no-files-found: error
+          if-no-files-found: error 
